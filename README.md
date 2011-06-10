@@ -2,6 +2,8 @@ This is a light library to access the Backchat provisioning API
 
 # Getting started
 
+You need a valid api-key to access Backchat API
+
     require 'backchat-client'
 	bc = Backchat::Client.new("api-key")
 	
