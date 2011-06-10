@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["This gem provides an easy way to access Backchat provisioning API"]
   s.email       = ["juandebravo@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Gem to access Backchat provisioning API}
+  s.description = %q{Gem to access Backchat provisioning API using rest_client as http client}
 
   s.rubyforge_project = "backchat-client"
 
