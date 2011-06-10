@@ -1,8 +1,9 @@
+require 'backchat_client/http_client'
 require 'active_support'
-require 'rest_client'
 
 module BackchatClient
   class Stream
+    include BackchatClient::HttpClient
     
     URI_PATH = "streams"
     
@@ -11,7 +12,15 @@ module BackchatClient
       @endpoint = endpoint
     end
     
+    # This method POST a request to create a new stream on behalf of the
+    # authenticated application
+    # @param name
+    # @param description
+    # @param filters one or more valid channel URIs
+    # @param filter_enabled one or more boolean values enabling|disabling the filters
+    # @return response body
     def create(name, description, filters = [], filter_enabled = [])
+      # TODO include filter_enabled = true when there're empty spaces
       ActiveSupport::JSON.decode(post("", {:name => name, :description => description, :channel_filters => filters, :filter_enabled => filter_enabled}))
     end
     
@@ -28,22 +37,5 @@ module BackchatClient
       end
     end
     
-    private
-    
-    def get(path, params = nil, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.get("#{@endpoint.concat(URI_PATH)}/#{path}", headers)
-    end
-
-    def post(path, body = {}, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      RestClient.post("#{@endpoint.concat(URI_PATH)}/#{path}", ActiveSupport::JSON.encode(body), headers)
-    end   
-    
-    def delete(path, body = {}, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.delete("#{@endpoint.concat(URI_PATH)}/#{path}", headers)
-    end   
-     
   end
 end

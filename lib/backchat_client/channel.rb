@@ -1,7 +1,9 @@
-require 'rest_client'
+require 'backchat_client/http_client'
+require 'active_support'
 
 module BackchatClient
   class Channel
+    include BackchatClient::HttpClient
     
     URI_PATH = "/channels"
 
@@ -10,24 +12,20 @@ module BackchatClient
       @endpoint = endpoint
     end
 
+    # This method POST a request to create a new channel on behalf of the
+    # authenticated application
+    # @param uri valid Backchat URI, i.e. twitter://username
+    # @return response body
     def create(uri)
       ActiveSupport::JSON.decode(post("index.json", {:channel => uri}))
     end
     
+    # This method sends a GET request to retrieve all or a specific application
+    # channel
+    # @TODO use the parameter
+    # @return response body
     def find(name)
       ActiveSupport::JSON.decode(get("index.json"))
-    end
-    
-    private
-    
-    def get(path, params = nil, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.get("#{@endpoint.concat(URI_PATH)}/#{path}", headers)
-    end
-    
-    def post(path, body = {}, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      RestClient.post("#{@endpoint.concat(URI_PATH)}/#{path}", ActiveSupport::JSON.encode(body), headers)
     end
     
   end
