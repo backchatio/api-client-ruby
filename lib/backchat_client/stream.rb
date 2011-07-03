@@ -19,9 +19,9 @@ module BackchatClient
     # @param filters one or more valid channel URIs
     # @param filter_enabled one or more boolean values enabling|disabling the filters
     # @return response body
-    def create(name, description, filters = [], filter_enabled = [])
+    def create(name, description, filters = [])
       # TODO include filter_enabled = true when there're empty spaces
-      ActiveSupport::JSON.decode(post("", {:name => name, :description => description, :channel_filters => filters, :filter_enabled => filter_enabled}))
+      ActiveSupport::JSON.decode(post("", {:name => name, :description => description, :channel_filters => filters}))
     end
     
     def find(name)

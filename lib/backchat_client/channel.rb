@@ -5,7 +5,7 @@ module BackchatClient
   class Channel
     include BackchatClient::HttpClient
     
-    URI_PATH = "/channels"
+    URI_PATH = "channels"
 
     def initialize(api_key, endpoint)
       @api_key = api_key
@@ -26,6 +26,15 @@ module BackchatClient
     # @return response body
     def find(name)
       ActiveSupport::JSON.decode(get("index.json"))
+    end
+
+    def destroy(name)
+      begin
+        ActiveSupport::JSON.decode(delete("",{:channel => name}))
+        return true
+      rescue RestClient::ResourceNotFound
+        return false
+      end
     end
     
   end

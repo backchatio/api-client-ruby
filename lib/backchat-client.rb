@@ -4,7 +4,7 @@ require 'backchat_client/stream'
 module Backchat
   class Client
 
-    DEFAULT_ENDPOINT = "https://api.backchat.io/1/"
+    DEFAULT_ENDPOINT = "https://api.backchat.io/1"
 
     attr_accessor :api_key
     attr_reader :endpoint
@@ -32,6 +32,10 @@ module Backchat
       end
     end
     
+    def destroy_channel(name)
+      channel.destroy(name)
+    end
+    
     # Streams management
     
     def find_stream(name = nil)
@@ -42,9 +46,9 @@ module Backchat
       end
     end
     
-    def create_stream(name, description = nil, filters = [], filter_enabled = [])
+    def create_stream(name, description = nil, filters = [])
       description.nil? and description = "Stream created using Backchat client gem"
-      _stream = stream.create(name, description, filters, filter_enabled)
+      _stream = stream.create(name, description, filters)
 
       if _stream.respond_to?("has_key?") and _stream.has_key?("data")
         _stream["data"]["uri"]
