@@ -13,23 +13,23 @@ module BackchatClient
   module HttpClient
 
     # HTTP GET
-    def get(path, params = nil, headers = {})
+    def get(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.get("#{@endpoint.concat(uri_path)}/#{path}", headers)
+      RestClient.get("#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&")), headers)
     end
 
     # HTTP POST
     def post(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      RestClient.post("#{@endpoint.concat(uri_path)}/#{path}", ActiveSupport::JSON.encode(body), headers)
       puts "#{@endpoint}/#{uri_path}/#{path}"
       puts ActiveSupport::JSON.encode(body)
+      RestClient.post("#{@endpoint}/#{uri_path}/#{path}", ActiveSupport::JSON.encode(body), headers)
     end   
     
     # HTTP DELETE
-    def delete(path, body = {}, headers = {})
+    def delete(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.delete("#{@endpoint.concat(uri_path)}/#{path}", headers)
+      RestClient.delete("#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&")), headers)
     end   
     
     private
