@@ -21,8 +21,6 @@ module BackchatClient
     # HTTP POST
     def post(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      puts "#{@endpoint}/#{uri_path}/#{path}"
-      puts ActiveSupport::JSON.encode(body)
       RestClient.post("#{@endpoint}/#{uri_path}/#{path}", ActiveSupport::JSON.encode(body), headers)
     end   
     
