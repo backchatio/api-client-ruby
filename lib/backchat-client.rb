@@ -1,5 +1,6 @@
 require 'backchat_client/channel'
 require 'backchat_client/stream'
+require 'backchat_client/user'
 
 module Backchat
   class Client
@@ -12,6 +13,12 @@ module Backchat
     def initialize(api_key, endpoint = nil)
       @api_key = api_key
       @endpoint = endpoint.nil? ? DEFAULT_ENDPOINT : endpoint
+    end
+    
+    # User management
+    
+    def get_profile
+      user.find
     end
     
     # Channels management
@@ -60,6 +67,10 @@ module Backchat
     end
     
     private
+    
+    def user
+      @user ||= BackchatClient::User.new(api_key, endpoint.dup)
+    end
     
     def channel
       @channel ||= BackchatClient::Channel.new(api_key, endpoint.dup)
