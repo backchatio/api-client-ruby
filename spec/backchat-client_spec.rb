@@ -15,6 +15,20 @@ describe Backchat::Client do
       bc.endpoint.should eq(Backchat::Client::DEFAULT_ENDPOINT)
       bc.api_key.should eq("api-key")
     end
+    
+    describe "valid? method" do
+      it "returns true with a valid token" do
+        bc = Backchat::Client.new("5ed939eab9fdbaa631bf16fcc25fd1eb")
+        bc.valid?.should eql(true)
+      end
+
+      it "returns false with a valid token" do
+        bc = Backchat::Client.new("5ed93")
+        bc.valid?.should eql(false)
+      end
+    end
+
+    
 
   end
 

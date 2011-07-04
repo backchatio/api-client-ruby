@@ -1,6 +1,6 @@
 require 'backchat-client'
 
-describe BackchatClient::Stream do
+describe BackchatClient::User do
   API_KEY = "5ed939eab9fdbaa631bf16fcc25fd1eb"
 
   describe "when working with find method" do
@@ -11,5 +11,5 @@ describe BackchatClient::Stream do
     end
   
   end
-  
+
 end

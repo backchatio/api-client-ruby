@@ -15,8 +15,18 @@ module Backchat
       @endpoint = endpoint.nil? ? DEFAULT_ENDPOINT : endpoint
     end
     
+    #
+    # Checks if a Token is valid
+    #
+    def valid?
+      !get_profile.nil?
+    end
+    
     # User management
     
+    # get user profile
+    # 
+    #
     def get_profile
       user.find
     end
