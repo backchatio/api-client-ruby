@@ -28,6 +28,10 @@ module BackchatClient
       ActiveSupport::JSON.decode(get("index.json"))
     end
     
+    def update(slug, params)
+      ActiveSupport::JSON.decode(put(slug, params))
+    end
+    
     def destroy(name)
       begin
         ActiveSupport::JSON.decode(delete(name))
