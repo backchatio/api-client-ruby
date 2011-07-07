@@ -81,6 +81,15 @@ module Backchat
       stream.update(stream_slug, {:name  => st["name"],:channel_filters  => channels})
     end
     
+    # This method add a new channel to a stream
+
+    def add_channel(stream_slug, channel)
+      st = stream.find(stream_slug)["data"].first
+      channel[:enabled]=true
+      st["channel_filters"] << channel
+      stream.update(stream_slug, st)
+    end
+    
     
     def destroy_stream(name)
       stream.destroy(name)
