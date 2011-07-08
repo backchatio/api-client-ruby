@@ -75,21 +75,17 @@ module Backchat
     # This method updates the stream, assigning the new channels array to it.
     # In order to simplify, all the channels sent by parameters will be enabled.
 
-    def set_channels(stream_slug, channels = [])
+    def set_channels(stream_slug, channels = [], reset = false)
       st = stream.find(stream_slug)["data"].first
-      channels.map{|c| c[:enabled]=true}
-      stream.update(stream_slug, {:name  => st["name"],:channel_filters  => channels})
-    end
-    
-    # This method add a new channel to a stream
-
-    def add_channel(stream_slug, channel)
-      st = stream.find(stream_slug)["data"].first
-      channel[:enabled]=true
-      st["channel_filters"] << channel
+      channels.map{|c| c["enabled"]=true}
+      if reset
+        st["channel_filters"] = channels
+      else
+        st["channel_filters"] |= channels
+      end
+      
       stream.update(stream_slug, st)
     end
-    
     
     def destroy_stream(name)
       stream.destroy(name)
