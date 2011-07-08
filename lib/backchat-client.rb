@@ -1,6 +1,7 @@
 require 'backchat_client/channel'
 require 'backchat_client/stream'
 require 'backchat_client/user'
+require 'addressable/uri'
 
 module Backchat
   class Client
@@ -41,9 +42,13 @@ module Backchat
       end
     end
     
-    def create_channel(channel_type, id)
-      _channel = channel.create("#{channel_type}://#{id}")
-      
+    def create_channel(channel_type, id, bql=nil)
+      channel_uri = "#{channel_type}://#{id}"
+      if bql
+        channel_uri += "?bql=#{bql}"
+      end
+      _channel = channel.create(Addressable::URI.parse(channel_uri).normalize)
+        
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
         _channel["data"]["uri"]
       end

@@ -21,6 +21,6 @@ Gem::Specification.new do |s|
   
   s.add_dependency("rest-client")
   s.add_dependency("activesupport")
-  
+  s.add_dependency("addressable")  
   s.add_development_dependency('rspec')
 end
