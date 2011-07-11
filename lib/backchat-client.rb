@@ -43,19 +43,15 @@ module Backchat
     end
     
     def create_channel(channel_type, id, bql=nil)
-      channel_uri = "#{channel_type}://#{id}"
-      if bql
-        channel_uri += "?bql=#{bql}"
-      end
-      _channel = channel.create(Addressable::URI.parse(channel_uri).normalize)
+      _channel = channel.create(generate_channel_url(channel_type,id,bql))
         
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
         _channel["data"]["uri"]
       end
     end
     
-    def destroy_channel(name)
-      channel.destroy(name)
+    def destroy_channel(name, force = false)
+      channel.destroy(name, force)
     end
     
     # Streams management
@@ -80,16 +76,27 @@ module Backchat
     # This method updates the stream, assigning the new channels array to it.
     # In order to simplify, all the channels sent by parameters will be enabled.
 
-    def set_channels(stream_slug, channels = [], reset = false)
+    def set_channels(stream_slug, channels = [], reset = false, bql = nil)
       st = stream.find(stream_slug)["data"].first
-      channels.map{|c| c["enabled"]=true}
+      channels.map{|c| 
+        c["enabled"]=true; 
+        c["channel"]+="?bql=#{bql}" unless bql.nil?; 
+        c["channel"] = Addressable::URI.parse(c["channel"]).normalize.to_s 
+      }
       if reset
         st["channel_filters"] = channels
       else
         st["channel_filters"] |= channels
       end
-      
       stream.update(stream_slug, st)
+    end
+    
+    def generate_channel_url(type, id, bql = nil)
+      channel_uri = "#{type}://#{id}"
+      if bql
+        channel_uri += "?bql=#{bql}"
+      end
+      Addressable::URI.parse(channel_uri).normalize.to_s
     end
     
     def destroy_stream(name)

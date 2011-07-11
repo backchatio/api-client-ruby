@@ -28,9 +28,9 @@ module BackchatClient
       ActiveSupport::JSON.decode(get("index.json"))
     end
 
-    def destroy(name)
+    def destroy(name, force = false)
       begin
-        ActiveSupport::JSON.decode(delete("",{:channel => name}))
+        ActiveSupport::JSON.decode(delete("",{:channel => name, :force  => force}))
         return true
       rescue RestClient::ResourceNotFound
         return false
