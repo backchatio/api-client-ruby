@@ -79,9 +79,9 @@ module Backchat
     def set_channels(stream_slug, channels = [], reset = false, bql = nil)
       st = stream.find(stream_slug)["data"].first
       channels.map{|c| 
-        c["enabled"]=true; 
-        c["channel"]+="?bql=#{bql}" unless bql.nil?; 
-        c["channel"] = Addressable::URI.parse(c["channel"]).normalize.to_s 
+        c[:enabled]=true; 
+        c[:channel]+="?bql=#{bql}" unless bql.nil?; 
+        c[:channel] = Addressable::URI.parse(c[:channel]).normalize.to_s 
       }
       if reset
         st["channel_filters"] = channels
