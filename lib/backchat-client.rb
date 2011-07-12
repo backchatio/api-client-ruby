@@ -77,7 +77,8 @@ module Backchat
     # In order to simplify, all the channels sent by parameters will be enabled.
 
     def set_channels(stream_slug, channels = [], reset = false, bql = nil)
-      st = stream.find(stream_slug)["data"].first
+      st = stream.find(stream_slug) or return false
+      st = st["data"]
       channels.map{|c| 
         c[:enabled]=true; 
         c[:channel]+="?bql=#{bql}" unless bql.nil?; 

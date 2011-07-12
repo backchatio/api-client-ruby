@@ -25,7 +25,15 @@ module BackchatClient
     end
     
     def find(name)
-      ActiveSupport::JSON.decode(get("index.json"))
+      if name
+        begin
+          ActiveSupport::JSON.decode(get(name))
+        rescue RestClient::ResourceNotFound
+          return false
+        end
+      else
+        ActiveSupport::JSON.decode(get("index.json"))
+      end
     end
     
     def update(slug, params)
