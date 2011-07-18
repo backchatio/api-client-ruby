@@ -1,10 +1,12 @@
 require 'backchat_client/channel'
 require 'backchat_client/stream'
 require 'backchat_client/user'
+require 'backchat_client/backchat_logger'
 require 'addressable/uri'
 
 module Backchat
   class Client
+    include BackchatClient::BackchatLogger
 
     DEFAULT_ENDPOINT = "https://api.backchat.io/1"
 
