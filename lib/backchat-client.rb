@@ -34,6 +34,10 @@ module Backchat
       user.find
     end
     
+    def delete_user
+      user.destroy
+    end
+    
     # Channels management
     
     def find_channel(name = nil)

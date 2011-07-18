@@ -14,6 +14,10 @@ module BackchatClient
       @endpoint = endpoint
     end
     
+    def destroy
+      delete("")
+    end
+    
     # this method return the user profile in case that the token provided is valid
     # @return user profile with information about channels, streams and plan
     # @return nil if token is invalid or an unexpected error takes place
