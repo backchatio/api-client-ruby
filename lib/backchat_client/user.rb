@@ -1,25 +1,24 @@
 require 'active_support'
+require 'backchat_client/backchat_logger'
 
 module BackchatClient
   class User
     include BackchatClient::HttpClient
+    include BackchatClient::BackchatLogger
 
-    URI_PATH = ""    
+    URI_PATH = nil # no suffix for user path
 
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
     end
     
-
-    def create(username)
-    end
-    
     # this method return the user profile in case that the token provided is valid
     # @return user profile with information about channels, streams and plan
-    # @return nil if token is invalid
+    # @return nil if token is invalid or an unexpected error takes place
     def find
       begin
+        debug("Fetching user profile")
         data = get("index.json")
         if data.is_a?(String)
           data = ActiveSupport::JSON.decode(data)
@@ -30,12 +29,12 @@ module BackchatClient
           end
         end
       rescue RestClient::Unauthorized => ex
-        # Invalid token
-        nil
+        error "Invalid api_key #{@api_key}"
+        nil # Invalid token
       rescue Exception => ex
-        # Unknown error. Should be logged
-        defined? logger and logger.error ex
-        nil
+        logger.error " Unexpected error"
+        logger.error ex.inspect
+        nil # Unexpected error
       end
     end
   end

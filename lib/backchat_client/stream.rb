@@ -1,9 +1,11 @@
 require 'backchat_client/http_client'
+require 'backchat_client/backchat_logger'
 require 'active_support'
 
 module BackchatClient
   class Stream
     include BackchatClient::HttpClient
+    include BackchatClient::BackchatLogger
     
     URI_PATH = "streams"
     
