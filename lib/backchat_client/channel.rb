@@ -1,9 +1,11 @@
 require 'backchat_client/http_client'
 require 'active_support'
+require 'backchat_client/backchat_logger'
 
 module BackchatClient
   class Channel
     include BackchatClient::HttpClient
+    include BackchatClient::BackchatLogger
     
     URI_PATH = "channels"
 
