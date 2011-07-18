@@ -14,26 +14,44 @@ module BackchatClient
 
     # HTTP GET
     def get(path, params = {}, headers = {})
-      headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.get("#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&")), headers)
+      headers.merge!({:Authorization => "Backchat #{@api_key}", :Accept => "application/json"})
+      uri = if uri_path.nil?
+        "#{@endpoint}/#{path}"
+      else
+        "#{@endpoint}/#{uri_path}/#{path}"
+      end
+      uri = "#{uri}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
+      debug("get request to uri #{uri}")
+      puts RestClient.get(uri, headers)
+      RestClient.get(uri, headers)
     end
 
     # HTTP POST
     def post(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      RestClient.post("#{@endpoint}/#{uri_path}/#{path}", ActiveSupport::JSON.encode(body), headers)
+      body = ActiveSupport::JSON.encode(body)
+      uri = "#{@endpoint}/#{uri_path}/#{path}"
+      debug("post request to uri #{uri}")
+      debug("post body: <#{body}>")
+      RestClient.post("#{uri}", body, headers)
     end   
     
     # HTTP PUT
     def put(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
-      RestClient.put("#{@endpoint}/#{uri_path}/#{path}", ActiveSupport::JSON.encode(body), headers)
+      body = ActiveSupport::JSON.encode(body)
+      uri = "#{@endpoint}/#{uri_path}/#{path}"
+      debug("put request to uri #{uri}")
+      debug("put body: <#{body}>")
+      RestClient.put("#{uri}", body, headers)
     end
     
     # HTTP DELETE
     def delete(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      RestClient.delete("#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&")), headers)
+      uri = "#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
+      debug("delete request to uri #{uri}")
+      RestClient.delete(uri, headers)
     end   
     
     private
