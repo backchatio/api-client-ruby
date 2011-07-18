@@ -15,11 +15,8 @@ module BackchatClient
     # HTTP GET
     def get(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :Accept => "application/json"})
-      uri = if uri_path.nil?
-        "#{@endpoint}/#{path}"
-      else
-        "#{@endpoint}/#{uri_path}/#{path}"
-      end
+      
+      uri = set_path(path)
       uri = "#{uri}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
       debug("get request to uri #{uri}")
       puts RestClient.get(uri, headers)
@@ -30,7 +27,7 @@ module BackchatClient
     def post(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
       body = ActiveSupport::JSON.encode(body)
-      uri = "#{@endpoint}/#{uri_path}/#{path}"
+      uri = set_path(path)
       debug("post request to uri #{uri}")
       debug("post body: <#{body}>")
       RestClient.post("#{uri}", body, headers)
@@ -40,7 +37,7 @@ module BackchatClient
     def put(path, body = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :content_type => :json, :accept => :json})
       body = ActiveSupport::JSON.encode(body)
-      uri = "#{@endpoint}/#{uri_path}/#{path}"
+      uri = set_path(path)
       debug("put request to uri #{uri}")
       debug("put body: <#{body}>")
       RestClient.put("#{uri}", body, headers)
@@ -49,12 +46,21 @@ module BackchatClient
     # HTTP DELETE
     def delete(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}"})
-      uri = "#{@endpoint}/#{uri_path}/#{path}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
+      uri = set_path(path)
+      uri = "#{uri}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
       debug("delete request to uri #{uri}")
       RestClient.delete(uri, headers)
     end   
     
     private
+    
+    def set_path(path)
+      if uri_path.nil?
+        "#{@endpoint}/#{path}"
+      else
+        "#{@endpoint}/#{uri_path}/#{path}"
+      end
+    end
     
     # Returns the entity URI_PATH constant (loaded from the entity class)
     def uri_path
