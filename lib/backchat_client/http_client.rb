@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'backchat_client/backchat_logger'
 
 module BackchatClient
   #
