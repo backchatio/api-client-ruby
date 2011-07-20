@@ -12,6 +12,8 @@ module BackchatClient
   #
   module HttpClient
 
+    include BackchatClient::BackchatLogger
+
     # HTTP GET
     def get(path, params = {}, headers = {})
       headers.merge!({:Authorization => "Backchat #{@api_key}", :Accept => "application/json"})
