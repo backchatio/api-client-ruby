@@ -19,7 +19,6 @@ module BackchatClient
       uri = set_path(path)
       uri = "#{uri}?".concat(params.collect { |k, v| "#{k}=#{v.to_s}" }.join("&"))
       debug("get request to uri #{uri}")
-      puts RestClient.get(uri, headers)
       RestClient.get(uri, headers)
     end
 
