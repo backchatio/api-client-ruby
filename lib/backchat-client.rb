@@ -49,11 +49,7 @@ module Backchat
     end
     
     def create_channel(channel_type, id, bql=nil)
-      _channel = channel.create(generate_channel_url(channel_type,id,bql))
-        
-      if _channel.respond_to?("has_key?") and _channel.has_key?("data")
-        _channel["data"]["uri"]
-      end
+      channel.create(generate_channel_url(channel_type,id,bql))
     end
     
     def destroy_channel(name, force = false)
@@ -72,11 +68,7 @@ module Backchat
     
     def create_stream(name, description = nil, filters = [])
       description.nil? and description = "Stream created using Backchat client gem"
-      _stream = stream.create(name, description, filters)
-
-      if _stream.respond_to?("has_key?") and _stream.has_key?("data")
-        _stream["data"]["uri"]
-      end
+      stream.create(name, description, filters)
     end
     
     # This method updates the stream, assigning the new channels array to it.
