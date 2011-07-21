@@ -10,7 +10,20 @@ ARGV.length < 1 and
 
 api_key = ARGV.shift
 
+stream = if ARGV.length < 1
+             ""
+         else
+             ARGV.shift
+         end
+
+Backchat::Client.log_level=Logger::DEBUG
 bc = Backchat::Client.new(api_key)
 
-puts bc.find_stream
+begin
+  puts bc.find_stream(stream)
+rescue Exception => ex
+  puts ex.message
+  puts ex
+end
+
 

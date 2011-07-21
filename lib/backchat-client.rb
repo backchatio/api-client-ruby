@@ -27,8 +27,8 @@ module Backchat
     
     # User management
     
+    #
     # get user profile
-    # 
     #
     def get_profile
       user.find
@@ -81,13 +81,14 @@ module Backchat
     
     # This method updates the stream, assigning the new channels array to it.
     # In order to simplify, all the channels sent by parameters will be enabled.
-
+    # @return true if the stream was successfully updated
+    # @raise exception if stream is not found
     def set_channels(stream_slug, channels = [], reset = false, bql = nil)
-      st = stream.find(stream_slug) or return false
+      st = stream.find(stream_slug) or raise "stream does not exist"
       st = st["data"]
       channels.map{|c| 
-        c[:enabled]=true; 
-        c[:channel]+="?bql=#{bql}" unless bql.nil?; 
+        c[:enabled] = true 
+        c[:channel]+="?bql=#{bql}" unless bql.nil? 
         c[:channel] = Addressable::URI.parse(c[:channel]).normalize.to_s 
       }
       if reset
@@ -96,6 +97,7 @@ module Backchat
         st["channel_filters"] |= channels
       end
       stream.update(stream_slug, st)
+      true
     end
     
     def generate_channel_url(type, id, bql = nil)
