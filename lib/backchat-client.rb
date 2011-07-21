@@ -49,7 +49,13 @@ module Backchat
     end
     
     def create_channel(channel_type, id, bql=nil)
-      channel.create(generate_channel_url(channel_type,id,bql))
+      _channel = channel.create(generate_channel_url(channel_type,id,bql))
+      
+      if _channel.respond_to?("has_key?") and _channel.has_key?("data")
+        _channel["data"]
+      else
+        raise "No data received from Backchat while creating channel"
+      end
     end
     
     def destroy_channel(name, force = false)
@@ -63,12 +69,21 @@ module Backchat
 
       if streams.respond_to?("has_key?") and streams.has_key?("data")
         streams["data"]
+      else
+        logger.debug "Stream with name #{name} not found in backchat"
+        nil
       end
     end
     
     def create_stream(name, description = nil, filters = [])
       description.nil? and description = "Stream created using Backchat client gem"
-      stream.create(name, description, filters)
+      _stream = stream.create(name, description, filters)
+      
+      if _stream.respond_to?("has_key?") and _stream.has_key?("data")
+        _stream["data"]
+      else
+        raise "No data received from Backchat while creating stream"
+      end
     end
     
     # This method updates the stream, assigning the new channels array to it.
