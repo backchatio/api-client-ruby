@@ -90,12 +90,12 @@ module Backchat
     # In order to simplify, all the channels sent by parameters will be enabled.
     # @return true if the stream was successfully updated
     # @raise exception if stream is not found
-    def set_channels(stream_slug, channels = [], reset = false, bql = nil)
+    def set_channels(stream_slug, channels = [], reset = false, filter = nil)
       st = stream.find(stream_slug) or raise "stream does not exist"
       st = st["data"]
       channels.map{|c| 
         c[:enabled] = true 
-        c[:channel]+="?bql=#{bql}" unless bql.nil? 
+        c[:channel]+="?q=#{filter}" unless filter.nil? 
         c[:channel] = Addressable::URI.parse(c[:channel]).normalize.to_s 
       }
       if reset
