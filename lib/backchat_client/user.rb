@@ -3,17 +3,28 @@ require 'backchat_client/http_client'
 require 'backchat_client/backchat_logger'
 
 module BackchatClient
+
+  #
+  # A Backchat User is a developer that has an api_key and can create applications using Backchat API
+  #
   class User
     include BackchatClient::HttpClient
     include BackchatClient::BackchatLogger
 
     URI_PATH = nil # no suffix for user path
 
+    #
+    # @param *api_key* application identifier
+    # @param *endpoint* Backchat endpoint
+    #
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
     end
     
+    #
+    # Delete user account
+    #
     def destroy
       delete("")
     end

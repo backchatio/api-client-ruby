@@ -1,4 +1,5 @@
 require 'backchat-client'
+require 'webmock/rspec'
 
 describe BackchatClient::Stream do
   API_KEY = "valid_api_key"
@@ -23,7 +24,7 @@ describe BackchatClient::Stream do
     it "returns the stream identifier" do
       pending
       bc = Backchat::Client.new(API_KEY)
-      puts bc.create_stream("stream-name", nil, [{:channel => "twitter://connfudev/#timeline", :enabled => true}])
+      puts bc.create_stream("stream-name", nil, [{:channel => "twitter://juandebravo/#timeline", :enabled => true}])
     end
   end
 
