@@ -4,6 +4,10 @@ This is a light library to access the Backchat provisioning API
 
     gem install backchat-client
 
+# Current version
+
+0.1
+
 # Getting started
 
 You need a valid api-key to access Backchat API
