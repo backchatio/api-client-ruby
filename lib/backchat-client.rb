@@ -141,12 +141,11 @@ module Backchat
     #
     # This method updates the stream, assigning the new channels array to it.
     # In order to simplify, all the channels received will be automatically enabled.
-    # @param stream_slug stream name
-    # @param channels array of channels to be included in the stream
-    # @param reset the channels are added (false) to the current channels or remove (true) the previous ones
-    # @param filter valid Lucene syntax to filter the channels
-    # @return true if the stream was successfully updated
-    # @raise exception if stream is not found
+    # @param *stream_slug* stream name
+    # @param *channels* array of channels to be included in the stream
+    # @param *reset* the channels are added (false) to the current channels or remove (true) the previous ones
+    # @param *filter* valid Lucene syntax to filter the channels
+    # @return *boolean* true if the stream was successfully updated, false in case of failure
     #
     def set_channels(stream_slug, channels = [], reset = false, filter = nil)
       st = stream.find(stream_slug) or raise "stream does not exist"
@@ -167,8 +166,16 @@ module Backchat
         st["channel_filters"] |= channels
       end
 
-      stream.update(stream_slug, st)
-      true
+      begin
+        logger.debug("Updating stream channels to #{st}")
+        stream.update(stream_slug, st)
+        true
+      rescue Exception => ex
+        logger.error("Error while updating stream channels : #{ex.message}")
+        logger.error(ex)
+        false
+      end
+
     end
 
     #
