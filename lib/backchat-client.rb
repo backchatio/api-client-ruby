@@ -78,11 +78,11 @@ module Backchat
 
     #
     # Creates a specific channel
-    # @param channel_type kind of channel: check Backchat documentation about supported channel types
-    # @param id channel unique identifier (in user scope)
+    # @param uri Full URI of the channel: <type>://<address>
+    # @param bql optional backchat filter
     #
-    def create_channel(channel_type, id, bql=nil)
-      _channel = channel.create(generate_channel_url(channel_type, id, bql))
+    def create_channel(uri, bql=nil)
+      _channel = channel.create(generate_channel_url(uri, bql))
 
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
         _channel["data"]
@@ -188,8 +188,7 @@ module Backchat
     #
     # Helper that generates the channel url using Addressable help
     #
-    def generate_channel_url(type, id, filter = nil)
-      channel_uri = "#{type}://#{id}"
+    def generate_channel_url(channel_uri, filter = nil)
       if filter
         channel_uri += "?q=#{filter}"
       end
