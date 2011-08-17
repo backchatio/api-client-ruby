@@ -1,6 +1,8 @@
-$:.unshift File.join(File.dirname(__FILE__),'..','lib')
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+$:.unshift File.join(File.dirname(__FILE__), '.')
 
 require 'backchat-client'
+require 'setup'
 
 ARGV.length < 3 and
 (
@@ -12,7 +14,7 @@ api_key = ARGV.shift
 stream_slug = ARGV.shift
 channel = ARGV.shift
 
-bc = Backchat::Client.new(api_key)
+bc = Backchat::Client.new(api_key, BACKCHAT_ENDPOINT)
 bc.logger.level = Logger::DEBUG
 
 begin
