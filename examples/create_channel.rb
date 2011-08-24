@@ -19,4 +19,11 @@ name = ARGV.shift
 bc = Backchat::Client.new(api_key, BACKCHAT_ENDPOINT)
 bc.logger.level = Logger::DEBUG
 
-puts bc.create_channel(type, name)
+begin
+  puts bc.create_channel(type, name)
+rescue BackchatClient::Error::ConflictError => ex
+  puts "channel already exists"
+rescue BackchatClient::Error::UnprocessableError => ex
+  puts "invalid channel name"
+  p ex.errors
+end

@@ -44,7 +44,7 @@ module BackchatClient
             nil
           end
         end
-      rescue RestClient::Unauthorized => ex
+      rescue BackchatClient::Error::ClientError => ex
         error "Invalid api_key #{@api_key}"
         nil # Invalid token
       rescue Exception => ex

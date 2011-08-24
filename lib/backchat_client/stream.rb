@@ -14,42 +14,40 @@ module BackchatClient
     # http uri to handle streams
     URI_PATH = "streams"
 
-    #
     # @param *api_key* application identifier
     # @param *endpoint* Backchat endpoint
-    #
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
     end
 
-    #
     # This method POST a request to create a new stream on behalf of the
     # authenticated application
     # @param name
     # @param description
     # @param filters one or more valid channel URIs
     # @param filter_enabled one or more boolean values enabling|disabling the filters
-    # @return response body
-    #
+    # @return decoded response body
     def create(name, description, filters = [])
-      ActiveSupport::JSON.decode(post("", {:name => name, :description => description, :channel_filters => filters}))
+      begin
+        data = post("", {:name => name, :description => description, :channel_filters => filters})
+        ActiveSupport::JSON.decode(data)
+      rescue Error::ClientError => ex
+        logger.error ActiveSupport::JSON.decode(ex.response.body)
+        raise ex
+      end
     end
 
-    #
     # Retrieves a stream
     # @param *name* get a stream
     # @return stream data or nil if not found
-    #
     def find(name)
-      if name
-        begin
-          ActiveSupport::JSON.decode(get(name))
-        rescue RestClient::ResourceNotFound
-          return nil
-        end
-      else
-        ActiveSupport::JSON.decode(get("index.json"))
+      name.nil? and name = "index.json"
+      begin
+        ActiveSupport::JSON.decode(get(name))
+      rescue Error::ClientError => ex
+        logger.error(ex.errors)
+        return nil
       end
     end
 
@@ -57,17 +55,16 @@ module BackchatClient
       ActiveSupport::JSON.decode(put(slug, params))
     end
 
-    #
     # Delete a defined stream
     # @param *name* valid stream name
-    # @param true|false if deleted or not
-    #
+    # @return true|false if deleted or not
     def destroy(name)
       begin
-        ActiveSupport::JSON.decode(delete(name))
-        return true
-      rescue RestClient::ResourceNotFound
-        return false
+        delete(name)
+        true
+      rescue Error::ClientError => ex
+        logger.error ex.errors
+        false
       end
     end
 

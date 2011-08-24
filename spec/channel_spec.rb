@@ -1,8 +1,8 @@
 require 'backchat-client'
+require 'spec_helper'
 require 'webmock/rspec'
 
 describe BackchatClient::Channel do
-  API_KEY = "valid-api-key"
 
   describe "when working with find method" do
 
@@ -31,7 +31,7 @@ describe BackchatClient::Channel do
 
       bc = Backchat::Client.new(API_KEY)
 
-      channel = bc.create_channel("twitter", "juandebravo")
+      channel = bc.create_channel("twitter://juandebravo")
       channel.should be_a(Hash)
       channel.should have_key("uri")
       channel["uri"].should eql("twitter://juandebravo/#timeline")

@@ -1,1 +1,1 @@
-BACKCHAT_ENDPOINT = "http://backchat.gatillos.com/1"
+BACKCHAT_ENDPOINT = "https://api.backchat.io/1"

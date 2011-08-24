@@ -1,16 +1,12 @@
 require 'backchat-client'
+require 'spec_helper'
 require 'webmock/rspec'
 
 describe BackchatClient::User do
   
-  before(:each) do
-    Backchat::Client.log_level = Logger::DEBUG
-  end
-
   describe "when working with find method" do
 
     it "gets all the user defined streams when no name is provided" do
-      API_KEY = "valid_api_key"
       bc = Backchat::Client.new(API_KEY)
       stub_request(:get, "https://api.backchat.io/1/index.json?").
                 with(:headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).
@@ -23,7 +19,6 @@ describe BackchatClient::User do
     end
   
     it "deletes a user when valid api_key provided" do
-      API_KEY = "valid_api_key"
       bc = Backchat::Client.new(API_KEY)
       stub_request(:delete, "https://api.backchat.io/1/?").
                 with(:headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).

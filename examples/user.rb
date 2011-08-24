@@ -13,6 +13,7 @@ ARGV.length < 1 and
 api_key = ARGV.shift
 
 
+Backchat::Client.log_level = Logger::DEBUG
 bc = Backchat::Client.new(api_key, BACKCHAT_ENDPOINT)
 puts bc.get_profile
 

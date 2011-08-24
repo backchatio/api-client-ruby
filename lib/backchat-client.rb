@@ -2,11 +2,14 @@ require 'backchat_client/channel'
 require 'backchat_client/stream'
 require 'backchat_client/user'
 require 'backchat_client/backchat_logger'
+require 'backchat_client/error'
 require 'addressable/uri'
 
 module Backchat
 
   include BackchatClient::BackchatLogger
+  
+  autoload :ClientError, 'error/client_error'
 
   #
   # This class is the main entry point to use the backchat-client gem.
@@ -63,7 +66,6 @@ module Backchat
     #
     # Retrieves a specific channel or all the channels associated to the api_key
     # @return one or more channel data
-    #
     def find_channel
       channels = channel.find
 
@@ -76,15 +78,15 @@ module Backchat
       end
     end
 
-    #
     # Creates a specific channel
     # @param uri Full URI of the channel: <type>://<address>
     # @param bql optional backchat filter
-    #
+    # @return response body returned by backchat
     def create_channel(uri, bql=nil)
       _channel = channel.create(generate_channel_url(uri, bql))
 
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
+        logger.debug("Channel created in Backchat #{_channel}")
         _channel["data"]
       else
         logger.error("Invalid data received while creating channel #{_channel}")
@@ -92,23 +94,20 @@ module Backchat
       end
     end
 
-    #
     # Delete a channel
     # @param *name*
     # @param *force* true|false if channel should be deleted even if being used in a stream
-    #
+    # @return true|false
     def destroy_channel(name, force = false)
       channel.destroy(name, force)
     end
 
     # Streams management
 
-
     #
     # Retrieves a specific stream
     # @param *name* (optional) stream name. If undefined, all the user streams are retrieved
     # @return stream data hash
-    #
     def find_stream(name = nil)
       streams = stream.find(name)
 
@@ -125,16 +124,19 @@ module Backchat
     # @param *name* unique stream identifier
     # @param *description* (optional)
     # @param *filters* (optional) array of filters
-    #
     def create_stream(name, description = nil, filters = [])
       description.nil? and description = "Stream created using backchat-client gem"
-      _stream = stream.create(name, description, filters)
-
-      if _stream.respond_to?("has_key?") and _stream.has_key?("data")
-        _stream["data"]
-      else
-        logger.error("Invalid data received while creating stream: #{_stream}")
-        raise "No data received from Backchat while creating stream"
+      begin
+        _stream = stream.create(name, description, filters)
+        if _stream.respond_to?("has_key?") and _stream.has_key?("data")
+          _stream["data"]
+        else
+          logger.error("Invalid data received while creating stream: #{_stream}")
+          raise "No data received from Backchat while creating stream"
+        end
+      rescue BackchatClient::Error::ClientError => ex
+        logger.error("There was an error creating the stream: #{ex.errors}")
+        nil
       end
     end
 

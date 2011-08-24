@@ -1,12 +1,8 @@
 require 'backchat-client'
+require 'spec_helper'
 require 'webmock/rspec'
 
 describe BackchatClient::Stream do
-  API_KEY = "valid_api_key"
-
-  before(:each) do
-    Backchat::Client.log_level = Logger::DEBUG
-  end
 
   describe "when working with find method" do
 
