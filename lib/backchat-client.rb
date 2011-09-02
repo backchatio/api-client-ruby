@@ -173,8 +173,7 @@ module Backchat
         stream.update(stream_slug, st)
         true
       rescue Exception => ex
-        logger.error("Error while updating stream channels : #{ex.message}")
-        logger.error(ex)
+        logger.error("Error while updating stream channels : #{ex.errors}")
         false
       end
 
