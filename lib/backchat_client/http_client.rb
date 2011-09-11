@@ -51,6 +51,10 @@ module BackchatClient
         logger.warn("Error while accessing Backchat")
         logger.warn("#{result.code} => #{result.message}")
         response.return!(request, result, &block)
+      when 500..599
+        logger.warn("Error while accessing Backchat")
+        logger.warn("#{result.code} => #{result.message}")
+        raise BackchatClient::Error::ServerError.new(result)
       else
         logger.warn("Error while accessing Backchat")
         logger.warn("#{result.code} => #{result.message}")
