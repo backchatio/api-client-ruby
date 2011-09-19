@@ -70,6 +70,7 @@ module BackchatClient
       uri = "#{uri}?".concat(params.collect { |k, v| "#{k}=#{CGI::escape(v.to_s)}" }.join("&"))
       debug("get request to uri #{uri}")
       RestClient.get(uri, headers) { |response, request, result, &block|
+        debug("got response: #{response}")
         response_handler(response, request, result, &block)
       }
       

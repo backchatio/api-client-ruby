@@ -139,6 +139,34 @@ module Backchat
         nil
       end
     end
+    
+    ##
+    # Deletes a specific well defined channel from a Backchat stream
+    #
+    # ==== Parameters
+    # *channel*: channel URI to delete
+    # *stream_slug* (optional): stream where the channel should be deleted (optional as it can be defined
+    #              using the api_key)
+    #
+    # ==== Return
+    # * *boolean* true if the stream was successfully updated, false in case of failure
+    #
+    def delete_channel_from_stream(channel, stream_slug = nil)
+      st = find_stream(stream_slug) or raise "stream does not exist"
+      
+      if st.is_a?(Array)
+        st = st.pop
+      end
+      
+      channel = Addressable::URI.parse(channel).normalize.to_s
+      
+      logger.debug "delete_channel_from_stream: delete channel #{channel} with initial filters #{st['channel_filters']}"
+      st["channel_filters"].delete_if{|c|
+        c["channel"].eql?(channel)
+      }
+      logger.debug "delete_channel_from_stream: updated filters #{st['channel_filters']}"
+      stream.update(st["slug"], st)
+    end
 
     #
     # This method updates the stream, assigning the new channels array to it.
