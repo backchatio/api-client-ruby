@@ -116,9 +116,9 @@ module BackchatClient
 
     def set_path(path)
       if uri_path.nil?
-        "#{@endpoint}/#{CGI::escape(path)}"
+        "#{@endpoint}/#{path}"
       else
-        "#{@endpoint}/#{uri_path}/#{CGI::escape(path)}"
+        "#{@endpoint}/#{uri_path}/#{path}"
       end
     end
 
