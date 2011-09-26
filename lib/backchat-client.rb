@@ -196,6 +196,13 @@ module Backchat
         c["channel"].eql?(channel)
       }
       
+      st["channel_filters"].map! { |channel|
+        channel[:channel] = Addressable::URI.parse(channel["expanded"]["canonical_uri"]).normalize.to_s
+        channel[:q] = channel["expanded"]["params"]["q"]
+        channel[:recorded] = true
+        channel.delete_if{|k| ![:channel, :q, :recorded].include?(k)}
+      }
+      
       logger.debug "delete_channel_from_stream: updated filters #{st['channel_filters']}"
       stream.update(st["slug"], st)
     end
@@ -216,12 +223,14 @@ module Backchat
     def set_channels(stream_slug, channels = [], reset = false, filter = nil)
       st = stream.find(stream_slug) or raise "stream does not exist"
 
+      logger.debug("Updating includind reset = #{reset} channels of stream #{stream_slug}")
+
       st = st["data"]
       # format the channels array
       channels.map { |channel|
-        channel[:channel] = Addressable::URI.parse(channel[:canonical_uri]).normalize.to_s
+        channel[:channel] = Addressable::URI.parse(channel[:channel]).normalize.to_s
         channel[:recorded] = true
-        channel[:text] = filter unless filter.nil?
+        channel[:q] = filter unless filter.nil? or filter.empty?
       }
 
       if reset
@@ -229,7 +238,14 @@ module Backchat
         st["channel_filters"] = channels
       else
         # add the new channels to the existing ones
-        st["channel_filters"] |= channels
+        previous_channels = st["channel_filters"]
+        previous_channels.map!{|channel|
+          channel[:channel] = Addressable::URI.parse(channel["expanded"]["canonical_uri"]).normalize.to_s
+          channel[:q] = channel["expanded"]["params"]["q"]
+          channel[:recorded] = true
+          channel.delete_if{|k| ![:channel, :q, :recorded].include?(k)}
+        }
+        st["channel_filters"] = previous_channels + channels
       end
 
       begin
