@@ -101,7 +101,12 @@ module Backchat
     # * BackchatClient::Error::ClientError if invalid data
     # * BackchatClient::Error::GeneralError if unable to retrieve a valid response
     def create_channel(uri, filter = nil)
-      _channel = channel.create(generate_channel_url(uri, filter))
+      
+      filter.nil? or uri = uri.concat("?q=#{filter}")
+
+      uri = Addressable::URI.parse(uri).normalize.to_s
+      
+      _channel = channel.create(uri)
 
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
         logger.debug("Channel created in Backchat #{_channel}")
@@ -214,9 +219,9 @@ module Backchat
       st = st["data"]
       # format the channels array
       channels.map { |channel|
-        channel[:enabled] = true
-        channel[:channel]+="?q=#{filter}" unless filter.nil?
-        channel[:channel] = Addressable::URI.parse(channel[:channel]).normalize.to_s
+        channel[:channel] = Addressable::URI.parse(channel[:canonical_uri]).normalize.to_s
+        channel[:recorded] = true
+        channel[:text] = filter unless filter.nil?
       }
 
       if reset
@@ -245,21 +250,6 @@ module Backchat
     # * *name* stream name
     def destroy_stream(name)
       stream.destroy(name)
-    end
-
-    ##
-    # Helper that generates the channel url using Addressable help
-    #
-    # ==== Parameters
-    # * *channel_uri* channel URI
-    # * *filter* string with valid Lucene syntax
-    #
-    # ==== Return
-    # * Normalized URI
-    def generate_channel_url(channel_uri, filter = nil)
-      filter and channel_uri.concat("?q=#{filter}")
-
-      Addressable::URI.parse(channel_uri).normalize.to_s
     end
 
     private
