@@ -20,7 +20,7 @@ module BackchatClient::Error
           errors = response
           if !response.nil? and response.respond_to?(:body)
             data = ActiveSupport::JSON.decode(response.body)
-            data.respond.to?(:has_key?) and data.has_key?("errors") and errors = data["errors"].flatten
+            data.respond_to?(:has_key?) and data.has_key?("errors") and errors = data["errors"].flatten
           end
           errors
         )
