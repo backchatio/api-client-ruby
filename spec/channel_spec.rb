@@ -40,24 +40,22 @@ describe BackchatClient::Channel do
 
   describe "when deleting a channel" do
     it "returns ok when the channel exists and force is set to false" do
-      pending("need to fix web mock")
-      stub_request(:delete, "https://api.backchat.io/1/channels/").
-          with(:query => {"channel" => "twitter://juandebravo/#timeline"}, :headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).
-          to_return(:body => '{"data":{"uri":"twitter://juandebravo/#timeline"}, "errors":[]}')
+      stub_request(:delete, "https://api.backchat.io/1/channels/?channel=twitter://juandebravo/&force=false").
+          with(:headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).
+          to_return(:body => '{"data":{}, "errors":[]}')
 
       bc = Backchat::Client.new(API_KEY)
-      result = bc.destroy_channel("twitter://juandebravo/#timeline")
+      result = bc.destroy_channel("twitter://juandebravo/")
       result.should eql(true)
     end
 
     it "returns ok when the channel exists and force is set to true" do
-      pending("need to fix web mock")
-      stub_request(:delete, "https://api.backchat.io/1/channels/").
-          with(:query => {"channel" => "twitter://juandebravo/#timeline", "force" => "true"}, :headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).
-          to_return(:body => '{"data":{"uri":"twitter://juandebravo/#timeline"}, "errors":[]}')
+      stub_request(:delete, "https://api.backchat.io/1/channels/?channel=twitter://juandebravo/&force=true").
+          with(:query => {"channel" => "twitter://juandebravo/", "force" => "true"}, :headers => {'Accept'=>'application/json', 'Authorization' => "Backchat #{API_KEY}"}).
+          to_return(:body => '{"data":{}, "errors":[]}')
 
       bc = Backchat::Client.new(API_KEY)
-      result = bc.destroy_channel("twitter://juandebravo/#timeline", true)
+      result = bc.destroy_channel("twitter://juandebravo/", true)
       result.should eql(true)
     end
 

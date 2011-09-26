@@ -4,7 +4,7 @@ require 'backchat_client/backchat_logger'
 
 module BackchatClient
 
-  #
+  ##
   # A Backchat Channel allows to define an external resource to fetch events using Backchat infrastructure
   #
   class Channel
@@ -14,17 +14,29 @@ module BackchatClient
     # http uri to handle channels
     URI_PATH = "channels"
 
-    # @param *api_key* application identifier
-    # @param *endpoint* Backchat endpoint
+    ##
+    # Constructor
+    #
+    # ==== Parameters
+    # * *api_key* application identifier
+    # * *endpoint* Backchat endpoint
+    #
+    # ==== Return
+    # * *Channel* instance
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
     end
 
+    ##
     # This method POST a request to create a new channel on behalf of the
     # authenticated application
-    # @param uri valid Backchat URI, i.e. twitter://username
-    # @return response body
+    # ==== Parameters
+    # * *uri*: Full URI of the channel: <type>://<address> including the filter
+    #
+    # ==== Return
+    # * JSON decoded response body returned by Backchat
+    # * BackchatClient::Error::ClientError if invalid data
     def create(uri)
       begin
         data = post("index.json", {:channel => uri})
@@ -35,20 +47,26 @@ module BackchatClient
       end
     end
 
-    # This method sends a GET request to retrieve all the user channels
-    # There is no way to retrieve a specific channel
-    # @return response body
+    ##
+    # Sends a GET request to retrieve all the user channels
+    # Currently there is no way to retrieve a specific channel
+    # ==== Return
+    # * response body
     def find
       ActiveSupport::JSON.decode(get("index.json"))
     end
 
-    # Delete an application channel
-    # @param *name* valid channel URI
-    # @param *force* delete even if it is being used by a stream
-    # @return true|false
-    def destroy(name, force = false)
+    ##
+    # Delete a channel in Backchat
+    #
+    # ==== Parameters
+    # * *uri* valid channel URI
+    # * *force* true|false if channel should be deleted even if being used by a stream
+    # ==== Return
+    # * true if channel was deleted, false if there was an error
+    def destroy(uri, force = false)
       begin
-        ActiveSupport::JSON.decode(delete("", {:channel => name, :force => force}))
+        delete("", {:channel => uri, :force => force})
         true
       rescue Error::ClientError => ex
         logger.error ex.errors

@@ -11,7 +11,7 @@ module Backchat
   
   autoload :ClientError, 'error/client_error'
 
-  #
+  ##
   # This class is the main entry point to use the backchat-client gem.
   # It creates a client with a specific api_key that connects to Backchat
   # and processes any request.
@@ -22,50 +22,61 @@ module Backchat
     # default endpoint where Backchat is deployed
     DEFAULT_ENDPOINT = "https://api.backchat.io/1"
 
+    # api key that identifies any request
     attr_accessor :api_key
+
+    # endpoint to access to Backchat
     attr_reader :endpoint
 
-    #
-    # @param *api_key* application identifier
-    # @param *endpoint* Backchat endpoint
+    ##
+    # Constructor
+    # ==== Parameters
+    # * *api_key* application identifier
+    # * *endpoint* Backchat endpoint
+    # ==== Return
+    # * *Client* instance
     #
     def initialize(api_key, endpoint = nil)
+      @_valid = nil
       @api_key = api_key
-      @endpoint = endpoint.nil? ? DEFAULT_ENDPOINT : endpoint
+      @endpoint = endpoint || DEFAULT_ENDPOINT
     end
 
-    #
-    # Checks if a Token is valid
-    # @return true|false
-    #
+    ##
+    # Checks if the api_key is valid
+    # ==== Return
+    # * true if valid, false if invalid
     def valid?
-      !get_profile.nil?
+      @_valid.nil? ? @_valid = !get_profile.nil? : @_valid
     end
 
-    #
-    # *User management*
+    ##
+    # === *User management*
 
-    #
-    # get user profile.
+    ##
+    # Get user profile.
     # The api_key used should be associated to a user
-    # @return user profile or nil if invalid api_key
-    #
+    # ==== Return
+    # * user profile or nil if invalid api_key
     def get_profile
       user.find
     end
 
-    #
+    ##
     # Delete user account
-    #
+    # The api_key used should be associated to a user
     def delete_user
       user.destroy
     end
 
-    # *Channels management*
+    ##
+    # === *Channels management*
 
-    #
+    ##
     # Retrieves a specific channel or all the channels associated to the api_key
-    # @return one or more channel data
+    # ==== Return
+    # * one or more channel data
+    # * nil if unable to retrieve valid data
     def find_channel
       channels = channel.find
 
@@ -78,33 +89,46 @@ module Backchat
       end
     end
 
-    # Creates a specific channel
-    # @param uri Full URI of the channel: <type>://<address>
-    # @param bql optional backchat filter
-    # @return response body returned by backchat
-    def create_channel(uri, bql=nil)
-      _channel = channel.create(generate_channel_url(uri, bql))
+    ##
+    # Creates a specific channel in Backchat
+    #
+    # ==== Parameters
+    # * *uri*: Full URI of the channel: <type>://<address>
+    # * *filter*: optional backchat filter
+    #
+    # ==== Return
+    # * response body returned by Backchat
+    # * BackchatClient::Error::ClientError if invalid data
+    # * BackchatClient::Error::GeneralError if unable to retrieve a valid response
+    def create_channel(uri, filter = nil)
+      _channel = channel.create(generate_channel_url(uri, filter))
 
       if _channel.respond_to?("has_key?") and _channel.has_key?("data")
         logger.debug("Channel created in Backchat #{_channel}")
         _channel["data"]
       else
         logger.error("Invalid data received while creating channel #{_channel}")
-        raise "No data received from Backchat while creating channel"
+        raise BackchatClient::Error::GeneralError.new("No data received from Backchat while creating channel")
       end
     end
 
-    # Delete a channel
-    # @param *name*
-    # @param *force* true|false if channel should be deleted even if being used in a stream
-    # @return true|false
-    def destroy_channel(name, force = false)
-      channel.destroy(name, force)
+    ##
+    # Delete a channel in Backchat
+    #
+    # ==== Parameters
+    # * *uri* valid channel uri
+    # * *force* true|false if channel should be deleted even if being used in a stream
+    # ==== Return
+    # * true if channel was deleted
+    # * false if there was an error
+    def destroy_channel(uri, force = false)
+      channel.destroy(uri, force)
     end
 
-    # Streams management
+    ##
+    # === *Streams management*
 
-    #
+    ##
     # Retrieves a specific stream
     # @param *name* (optional) stream name. If undefined, all the user streams are retrieved
     # @return stream data hash
@@ -119,11 +143,13 @@ module Backchat
       end
     end
 
-    #
+    ##
     # Create a specific stream
-    # @param *name* unique stream identifier
-    # @param *description* (optional)
-    # @param *filters* (optional) array of filters
+    #
+    # ==== Parameters
+    # * *name* unique stream identifier
+    # * *description* (optional)
+    # * *filters* (optional) array of filters
     def create_stream(name, description = nil, filters = [])
       description.nil? and description = "Stream created using backchat-client gem"
       begin
@@ -132,7 +158,7 @@ module Backchat
           _stream["data"]
         else
           logger.error("Invalid data received while creating stream: #{_stream}")
-          raise "No data received from Backchat while creating stream"
+          raise BackchatClient::Error::GeneralError.new("No data received from Backchat while creating stream")
         end
       rescue BackchatClient::Error::ClientError => ex
         logger.error("There was an error creating the stream: #{ex.errors}")
@@ -152,7 +178,7 @@ module Backchat
     # * *boolean* true if the stream was successfully updated, false in case of failure
     #
     def delete_channel_from_stream(channel, stream_slug = nil)
-      st = find_stream(stream_slug) or raise "stream does not exist"
+      st = find_stream(stream_slug) or raise BackchatClient::Error::NotFoundError.new("stream does not exist")
       
       if st.is_a?(Array)
         st = st.pop
@@ -164,18 +190,23 @@ module Backchat
       st["channel_filters"].delete_if{|c|
         c["channel"].eql?(channel)
       }
+      
       logger.debug "delete_channel_from_stream: updated filters #{st['channel_filters']}"
       stream.update(st["slug"], st)
     end
 
-    #
+    ##
     # This method updates the stream, assigning the new channels array to it.
     # In order to simplify, all the channels received will be automatically enabled.
-    # @param *stream_slug* stream name
-    # @param *channels* array of channels to be included in the stream
-    # @param *reset* the channels are added (false) to the current channels or remove (true) the previous ones
-    # @param *filter* valid Lucene syntax to filter the channels
-    # @return *boolean* true if the stream was successfully updated, false in case of failure
+    #
+    # ==== Parameters
+    # * *stream_slug* stream name
+    # * *channels* array of channels to be included in the stream
+    # * *reset* the channels are added (false) to the current channels or remove (true) the previous ones
+    # * *filter* valid Lucene syntax to filter the channels
+    #
+    # ==== Return
+    # * *boolean* true if the stream was successfully updated, false in case of failure
     #
     def set_channels(stream_slug, channels = [], reset = false, filter = nil)
       st = stream.find(stream_slug) or raise "stream does not exist"
@@ -207,20 +238,27 @@ module Backchat
 
     end
 
-    #
+    ##
     # Delete a stream
     #
+    # ==== Parameters
+    # * *name* stream name
     def destroy_stream(name)
       stream.destroy(name)
     end
 
-    #
+    ##
     # Helper that generates the channel url using Addressable help
     #
+    # ==== Parameters
+    # * *channel_uri* channel URI
+    # * *filter* string with valid Lucene syntax
+    #
+    # ==== Return
+    # * Normalized URI
     def generate_channel_url(channel_uri, filter = nil)
-      if filter
-        channel_uri += "?q=#{filter}"
-      end
+      filter and channel_uri.concat("?q=#{filter}")
+
       Addressable::URI.parse(channel_uri).normalize.to_s
     end
 

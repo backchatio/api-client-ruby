@@ -14,8 +14,15 @@ module BackchatClient
     # http uri to handle streams
     URI_PATH = "streams"
 
-    # @param *api_key* application identifier
-    # @param *endpoint* Backchat endpoint
+    ##
+    # Constructor
+    #
+    # ==== Parameters
+    # * *api_key* application identifier
+    # * *endpoint* Backchat endpoint
+    #
+    # ==== Return
+    # * *Stream* instance
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
@@ -55,9 +62,13 @@ module BackchatClient
       ActiveSupport::JSON.decode(put(slug, params))
     end
 
+    ##
     # Delete a defined stream
-    # @param *name* valid stream name
-    # @return true|false if deleted or not
+    #
+    # ==== Parameters
+    # * *name* valid stream name
+    # ==== Return
+    # * true|false if deleted or not
     def destroy(name)
       begin
         delete(name)

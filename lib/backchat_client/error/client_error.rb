@@ -8,6 +8,10 @@ module BackchatClient::Error
 
     end
     
+    class NotFoundError < ClientError
+
+    end
+    
     class UnprocessableError < ClientError
     end
 

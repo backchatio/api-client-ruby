@@ -13,25 +13,32 @@ module BackchatClient
 
     URI_PATH = nil # no suffix for user path
 
+    ##
+    # Constructor
     #
-    # @param *api_key* application identifier
-    # @param *endpoint* Backchat endpoint
+    # ==== Parameters
+    # * *api_key* application identifier
+    # * *endpoint* Backchat endpoint
     #
+    # ==== Return
+    # * *User* instance
     def initialize(api_key, endpoint)
       @api_key = api_key
       @endpoint = endpoint
     end
     
-    #
+    ##
     # Delete user account
     #
     def destroy
       delete("")
     end
     
-    # this method return the user profile in case that the token provided is valid
-    # @return user profile with information about channels, streams and plan
-    # @return nil if token is invalid or an unexpected error takes place
+    ##
+    # Return the user profile in case that the token provided is valid
+    # ==== Return
+    # * user profile with information about channels, streams and plan
+    # * nil if token is invalid or an unexpected error takes place
     def find
       begin
         debug("Fetching user profile")
