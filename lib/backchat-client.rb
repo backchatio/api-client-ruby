@@ -193,7 +193,12 @@ module Backchat
       
       logger.debug "delete_channel_from_stream: delete channel #{channel} with initial filters #{st['channel_filters']}"
       st["channel_filters"].delete_if{|c|
-        c["channel"].eql?(channel)
+        begin
+          Addressable::URI.parse(c["expanded"]["canonical_uri"]).normalize.to_s.eql?(channel)
+        rescue Exception => ex
+          logger.warn("Error processing the channel: #{ex.to_s}")
+          false
+        end
       }
       
       st["channel_filters"].map! { |channel|
