@@ -21,7 +21,6 @@ module BackchatClient
     # *request* HTTP request
     # *result*
     def response_handler(response, request, result, &block)
-      debug("response body: #{response.body}")
       case response.code
       when 200..207
         # If there is a :location header, return it
