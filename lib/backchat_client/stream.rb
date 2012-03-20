@@ -79,5 +79,14 @@ module BackchatClient
       end
     end
 
+    ##
+    # Listen to a stream defined in backchat
+    #
+    # @param *name* the stream to listen for
+    # @param *user* the user owning the stream (currently only you is supported)
+    # @param include_log_events also use the 
+    def listen_to(name, user = "", include_log_events = false)
+    end
+
   end
 end
