@@ -111,30 +111,21 @@ module BackchatClient
       def start_listening
         @listener = Thread.new do 
           while @authenticated
-            puts "polling socket"
             data = @client.receive
-            puts("data? #{data}")
             unless data.chomp.blank?
               begin
                 json = ActiveSupport::JSON.decode(data)
                 evt_name = json[0].chomp
-                puts "event name: #{evt_name}"
                 case evt_name
                 when "log_event"
                   evt_data = json[1]
-                  puts "event data: #{evt_data}"
                   sid = evt_data['stream_id']
-                  puts "stream_id: #{sid}"
                   callback = @subscriptions[sid]
-                  puts "callback: #{callback}"
                   callback.call(evt_data) if include_log_events
                 when "new_message"
                   evt_data = json[1]
-                  puts "event data: #{evt_data}"
                   sid = evt_data['stream_id']
-                  puts "stream_id: #{sid}"
                   callback = @subscriptions[sid]
-                  puts "callback: #{callback}"
                   callback.call(evt_data) 
                 when "auth"
                   t.exit
