@@ -36,7 +36,7 @@ module BackchatClient
         @@_logger ||= create_logger
       end
 
-      #change logger level
+      # change logger level
       # @param level valid    Logger level constant (Logger::DEBUG, etc)
       def log_level=(level)
         logger.level = level

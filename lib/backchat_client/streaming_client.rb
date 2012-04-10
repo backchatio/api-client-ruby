@@ -35,7 +35,7 @@ module BackchatClient
     #
     def subscribe(stream, user = "casualjim", include_log_events = false, &callback)
       raise BackchatClient::Error::StreamingError.new("Stream name required") if stream.blank?
-      raise BackchatClient::Error::StreamingError.new("Stream name required") if stream.blank?
+      raise BackchatClient::Error::StreamingError.new("Username required") if user.blank?
       stream_id = "#{user}-#{stream}"
       start_listening unless @listener
       @subscriptions[stream_id] = callback
@@ -51,6 +51,7 @@ module BackchatClient
     #
     def unsubscribe(stream, user = "casualjim")
       raise BackchatClient::Error::StreamingError.new("Stream name required") if stream.blank?
+      raise BackchatClient::Error::StreamingError.new("Username required") if user.blank?
       stream_id = "#{user}-#{stream}"
       write ["unsubscribe", user, stream]
       !!@subscriptions.delete(stream_id)
@@ -106,37 +107,46 @@ module BackchatClient
         end
       end
 
-     
-
       def start_listening
+        log = logger
         @listener = Thread.new do 
-          while @authenticated
-            data = @client.receive
-            unless data.chomp.blank?
-              begin
-                json = ActiveSupport::JSON.decode(data)
-                evt_name = json[0].chomp
-                case evt_name
-                when "log_event"
-                  evt_data = json[1]
-                  sid = evt_data['stream_id']
-                  callback = @subscriptions[sid]
-                  callback.call(evt_data) if include_log_events
-                when "new_message"
-                  evt_data = json[1]
-                  sid = evt_data['stream_id']
-                  callback = @subscriptions[sid]
-                  callback.call(evt_data) 
-                when "auth"
-                  t.exit
-                else
-                  puts "ignoring #{evt_name}"
+          begin
+            while @authenticated
+              data = @client.receive
+              unless data.chomp.blank?
+                begin
+                  json = ActiveSupport::JSON.decode(data)
+                  evt_name = json[0].chomp
+                  case evt_name
+                  when "log_entry"
+                    evt_data = json[1]
+                    sid = evt_data['stream_id']
+                    callback = @subscriptions[sid]
+                    callback.call(evt_data) if include_log_events
+                  when "new_message"
+                    evt_data = json[1]
+                    sid = evt_data['stream_id']
+                    callback = @subscriptions[sid]
+                    callback.call(evt_data) 
+                  when "auth"
+                    t.exit
+                  when "subscribed"
+                    evt_data = json[1]
+                    puts "subscribed to #{evt_data}"
+                  end
+                rescue Exception => e
+                  puts "[#{Time.now} | #{ex.class}] #{ex.message}\n#{ex.backtrace.join("\n")}"
+                  begin 
+                    log.error(e)
+                  rescue Exception => ex
+                    puts "[#{Time.now} | #{ex.class}] #{ex.message}\n#{ex.backtrace.join("\n")}"
+                  end
                 end
-              rescue e
-                #logger.error(e)
-                puts e
               end
             end
+          rescue Exception => e
+            puts "[#{Time.now} | #{ex.class}] #{ex.message}\n#{ex.backtrace.join("\n")}"
+            raise ex
           end
         end
       end
