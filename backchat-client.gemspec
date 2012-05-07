@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_dependency("rest-client")
-  s.add_dependency("libwebsocket")
+  s.add_dependency("web-socket-ruby")
   s.add_dependency("activesupport")
   s.add_dependency("addressable")  
   s.add_development_dependency('rspec')
